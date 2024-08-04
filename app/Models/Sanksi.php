@@ -2,31 +2,31 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\PeminjamanController;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Sanksi extends Model
 {
-    protected $table = 'sanksi';
+    use HasFactory;
+
+
     protected $primaryKey = 'id_sanksi';
-    public $timestamps = false;
+    protected $table = 'sanksi';
 
     protected $fillable = [
         'id_anggota',
         'id_peminjaman',
         'jumlah_denda',
-        'status'
+        'status',
     ];
 
-    // Relasi ke model Anggota
     public function anggota()
     {
-        return $this->belongsTo(Anggota::class, 'id_anggota');
+        return $this->belongsTo(Anggota::class, 'id_anggota', 'id_anggota');
     }
 
-    // Relasi ke model Peminjaman
     public function peminjaman()
     {
-        return $this->belongsTo(PeminjamanController::class, 'id_peminjaman');
+        return $this->belongsTo(Peminjaman::class, 'id_peminjaman', 'id_peminjaman');
     }
 }

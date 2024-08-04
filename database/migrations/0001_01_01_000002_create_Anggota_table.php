@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('anggota', function (Blueprint $table) {
-            $table->increments('id_anggota'); // Primary key auto-increment
+            $table->integer('id_anggota')->primary()->autoIncrement(); // Primary key auto-increment
             $table->string('nama', 150); // Nama anggota, varchar(150)
             $table->string('no_hp', 16); // Nomor HP, varchar(16)
             $table->text('alamat'); // Alamat, text

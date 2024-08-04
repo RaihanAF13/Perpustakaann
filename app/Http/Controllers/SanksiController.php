@@ -2,35 +2,110 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Sanksi;
+use App\Models\Anggota;
+use App\Models\Peminjaman;
+use Illuminate\Http\Request;
 
 class SanksiController extends Controller
 {
-    public function edit($id)
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
     {
-        $sanksi = Sanksi::findOrFail($id);
-        return view('sanksi.edit', compact('sanksi'));
+        $sanksi = Sanksi::with(['anggota', 'peminjaman'])->get();
+        return view('sanksi.index', compact('sanksi'));
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
     {
-        $validatedData = $request->validate([
+        $anggota = Anggota::all();
+        $peminjaman = Peminjaman::all();
+        return view('sanksi.create', compact('anggota', 'peminjaman'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'id_anggota' => 'required|exists:anggota,id_anggota',
+            'id_peminjaman' => 'required|exists:peminjaman,id_peminjaman',
             'jumlah_denda' => 'required|integer',
-            'status' => 'required|in:tunggakan,lunas',
+            'status' => 'required|in:Tunggakan,Lunas',
         ]);
 
-        $sanksi = Sanksi::findOrFail($id);
-        $sanksi->update($validatedData);
+        Sanksi::create($validated);
 
-        return redirect()->route('sanksi.index')->with('success', 'Sanksi updated successfully');
+        return redirect()->route('sanksi.index')->with('success', 'Sanksi berhasil ditambahkan.');
     }
 
-    public function destroy($id)
+    /**
+     * Display the specified resource.
+     *
+     * @param \App\Models\Sanksi $sanksi
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Sanksi $sanksi)
     {
-        $sanksi = Sanksi::findOrFail($id);
-        $sanksi->delete();
+        return view('sanksi.show', compact('sanksi'));
+    }
 
-        return redirect()->route('sanksi.index')->with('success', 'Sanksi deleted successfully');
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param \App\Models\Sanksi $sanksi
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Sanksi $sanksi)
+    {
+        $anggota = Anggota::all();
+        $peminjaman = Peminjaman::all();
+        return view('sanksi.edit', compact('sanksi', 'anggota', 'peminjaman'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Sanksi $sanksi
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Sanksi $sanksi)
+    {
+        $validated = $request->validate([
+            'id_anggota' => 'required|exists:anggota,id_anggota',
+            'id_peminjaman' => 'required|exists:peminjaman,id_peminjaman',
+            'jumlah_denda' => 'required|integer',
+            'status' => 'required|in:Tunggakan,Lunas',
+        ]);
+
+        $sanksi->update($validated);
+
+        return redirect()->route('sanksi.index')->with('success', 'Sanksi berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param \App\Models\Sanksi $sanksi
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Sanksi $sanksi)
+    {
+        $sanksi->delete();
+        return redirect()->route('sanksi.index')->with('success', 'Sanksi berhasil dihapus.');
     }
 }

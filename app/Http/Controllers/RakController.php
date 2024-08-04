@@ -24,7 +24,11 @@ class RakController extends Controller
             'lokasi_rak' => 'required|string|max:150',
         ]);
 
-        Rak::create($validatedData);
+        // dd($validatedData);
+
+        $rak = new Rak();
+        $rak->lokasi = $validatedData['lokasi_rak'];
+        $rak->save();
 
         return redirect()->route('rak.index')->with('success', 'Rak created successfully');
     }
@@ -46,9 +50,9 @@ class RakController extends Controller
         $validatedData = $request->validate([
             'lokasi_rak' => 'required|string|max:150',
         ]);
-
         $rak = rak::findOrFail($id);
-        $rak->update($validatedData);
+        $rak->lokasi = $validatedData['lokasi_rak'];
+        $rak->save();
 
         return redirect()->route('rak.index')->with('success', 'Rak updated successfully');
     }

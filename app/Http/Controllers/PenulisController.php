@@ -2,88 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Penulis;
+use Illuminate\Http\Request;
 
 class PenulisController extends Controller
 {
+    // Menampilkan daftar penulis
     public function index()
     {
         $penulis = Penulis::all();
         return view('penulis.index', compact('penulis'));
     }
 
+    // Menampilkan formulir untuk membuat penulis baru
     public function create()
     {
+
         return view('penulis.create');
     }
 
     public function store(Request $request)
     {
-        // Validasi input
         $validatedData = $request->validate([
-            'kd_penulis' => 'required|integer|unique:penulis,kd_penulis',
-            'nama_penulis' => 'required|string|max:150',
-            'tempat_lahir' => 'required|string|max:100',
-            'tanggal_lahir' => 'required|date',
-            'email' => 'required|string|email|max:150',
+            'nama_penulis' => 'required|string|max:255',
+            'tempat_lahir' => 'required|string|max:255',
+            'tgl_lahir' => 'required|date',
+            'email' => 'required|email|unique:penulis,email',
         ]);
 
-        // Buat penulis baru
-        Penulis::create($validatedData);
+        $penulis = new Penulis;
+        $penulis->nama_penulis = $validatedData['nama_penulis'];
+        $penulis->tempat_lahir = $validatedData['tempat_lahir'];
+        $penulis->tgl_lahir = $validatedData['tgl_lahir'];
+        $penulis->email = $validatedData['email'];
+        $penulis->save();
 
-        // Kembalikan respon
-        return redirect()->route('penulis.index')->with('success', 'Penulis created successfully');
+        return redirect()->route('penulis.index')->with('success', 'Penulis berhasil ditambahkan.');
     }
 
-  
 
+    // Menampilkan detail penulis
     public function show($id)
     {
-        $penulis = Penulis::find($id);
+        $penulis = Penulis::findOrFail($id);
         return view('penulis.show', compact('penulis'));
     }
 
+    // Menampilkan formulir untuk mengedit penulis
     public function edit($id)
     {
-        // Temukan penulis berdasarkan id
         $penulis = Penulis::findOrFail($id);
-
-        // Tampilkan form edit dengan data penulis
         return view('penulis.edit', compact('penulis'));
     }
 
+    // Memperbarui data penulis
     public function update(Request $request, $id)
     {
-        // Validasi input
+        // Validasi data input
         $validatedData = $request->validate([
-            'nama_penulis' => 'required|string|max:150',
-            'tempat_lahir' => 'required|string|max:100',
-            'tanggal_lahir' => 'required|date',
-            'email' => 'required|string|email|max:150',
+            'nama_penulis' => 'required|string|max:255',
+            'tempat_lahir' => 'required|string|max:255',
+            'tgl_lahir' => 'required|date',
+            'email' => 'required|email|unique:penulis,email,' . $id . ',kd_penulis',
         ]);
 
-        // Temukan penulis berdasarkan id
-        $penulis = Penulis::findOrFail($id);
+        // Temukan penulis dan perbarui datanya
 
-        // Update data penulis
+        $penulis = Penulis::findOrFail($id);
         $penulis->nama_penulis = $validatedData['nama_penulis'];
         $penulis->tempat_lahir = $validatedData['tempat_lahir'];
-        $penulis->tanggal_lahir = $validatedData['tanggal_lahir'];
+        $penulis->tgl_lahir = $validatedData['tgl_lahir'];
         $penulis->email = $validatedData['email'];
-
-        // Simpan perubahan
         $penulis->save();
 
-        // Kembalikan respon
-        return redirect()->route('penulis.index')->with('success', 'Penulis updated successfully');
+        // Redirect ke halaman index dengan pesan sukses
+        return redirect()->route('penulis.index')->with('success', 'Penulis berhasil diperbarui.');
     }
 
+    // Menghapus penulis
     public function destroy($id)
     {
-        $penulis = Penulis::find($id);
+        $penulis = Penulis::findOrFail($id);
         $penulis->delete();
 
-        return redirect()->route('penulis.index')->with('success', 'Penulis deleted successfully.');
+        return redirect()->route('penulis.index')->with('success', 'Penulis berhasil dihapus.');
     }
 }
